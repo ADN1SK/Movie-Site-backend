@@ -17,3 +17,4 @@ app.use("*", (req, res) => res.status(404).json({ error: "Not found" }));
 
 export default app;
 // app.listen(5000, () => console.log("Server running on port 5000"));
+
