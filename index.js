@@ -1,22 +1,54 @@
 import dotenv from "dotenv";
-dotenv.config();
-
 import mongoose from "mongoose";
 import app from "./server.js";
+import ReviewsDAO from "./dao/reviewsDAO.js";
 
-const port = process.env.PORT || 5000;
-const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/movies";
+dotenv.config();
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected 🔥"))
-  .catch((err) => console.log(err));
+const port = Number(process.env.PORT) || 8000;
 
-app.use(cors());
-app.use(express.json());
+function getMongoUri() {
+  if (process.env.MONGO_URI) {
+    return process.env.MONGO_URI;
+  }
 
-app.get("/", (req, res) => {
-  res.send("Backend is alive 😎");
-});
+  const username = process.env.MONGO_USERNAME;
+  const password = process.env.MONGO_PASSWORD;
+  const cluster = process.env.MONGO_CLUSTER || "cluster0.ayr9czp.mongodb.net";
+  const dbName = process.env.MONGO_DB_NAME || "moviesDB";
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+  if (!username || !password) {
+    return null;
+  }
+
+  return `mongodb+srv://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${cluster}/${dbName}?retryWrites=true&w=majority`;
+}
+
+async function startServer() {
+  const mongoUri = getMongoUri();
+
+  if (!mongoUri) {
+    console.error(
+      "Mongo config missing. Set MONGO_URI or MONGO_USERNAME and MONGO_PASSWORD.",
+    );
+    process.exit(1);
+  }
+
+  try {
+    await mongoose.connect(mongoUri, {
+      maxPoolSize: 60,
+      serverSelectionTimeoutMS: 2500,
+    });
+
+    await ReviewsDAO.injectDB();
+
+    app.listen(port, () => {
+      console.log(`listening on port ${port}`);
+    });
+  } catch (err) {
+    console.error(err.stack || err.message || err);
+    process.exit(1);
+  }
+}
+
+startServer();
