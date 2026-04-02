@@ -3,8 +3,7 @@ import ReviewsDAO from "../dao/reviewsDAO.js";
 export default class ReviewsController {
   static async apiPostReview(req, res) {
     try {
-      const { movieId, movieid, user, review } = req.body;
-      const targetMovieId = movieId || movieid;
+      const { movieId: targetMovieId, user, review } = req.body;
 
       if (!targetMovieId || !user || !review) {
         return res
@@ -56,6 +55,11 @@ export default class ReviewsController {
       const id = req.params.id;
       if (!id) {
         return res.status(400).json({ error: "review id is required" });
+      }
+
+      // Check if id is a valid hex string for ObjectId
+      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ error: "Invalid review ID format" });
       }
 
       const review = await ReviewsDAO.getReview(id);

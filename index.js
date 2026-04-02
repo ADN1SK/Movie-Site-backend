@@ -27,6 +27,19 @@ function getMongoUri() {
 async function startServer() {
   const mongoUri = getMongoUri();
 
+  // Setup connection event listeners
+  mongoose.connection.on("connected", () => {
+    console.log("Mongoose connected to DB Cluster");
+  });
+
+  mongoose.connection.on("error", (err) => {
+    console.error(`Mongoose connection error: ${err}`);
+  });
+
+  mongoose.connection.on("disconnected", () => {
+    console.log("Mongoose disconnected");
+  });
+
   if (!mongoUri) {
     console.error(
       "Mongo config missing. Set MONGO_URI or MONGO_USERNAME and MONGO_PASSWORD.",
@@ -40,11 +53,17 @@ async function startServer() {
       serverSelectionTimeoutMS: 2500,
     });
 
-    await ReviewsDAO.injectDB();
-
     app.listen(port, () => {
       console.log(`listening on port ${port}`);
     });
+
+    // Graceful shutdown
+    process.on("SIGINT", async () => {
+      await mongoose.connection.close();
+      console.log("Mongoose connection closed due to app termination");
+      process.exit(0);
+    });
+
   } catch (err) {
     console.error(err.stack || err.message || err);
     process.exit(1);

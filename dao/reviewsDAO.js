@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const reviewSchema = new mongoose.Schema(
   {
     movieId: { type: String, required: true },
@@ -14,11 +13,6 @@ const Review =
   mongoose.models.Review || mongoose.model("Review", reviewSchema, "reviews");
 
 export default class ReviewsDAO {
-  static async injectDB() {
-    // Using mongoose models, connection is handled in index.js
-    return;
-  }
-
   static async addReview(movieId, user, review) {
     try {
       return await Review.create({ movieId, user, review });
@@ -72,4 +66,3 @@ export default class ReviewsDAO {
     }
   }
 }
-

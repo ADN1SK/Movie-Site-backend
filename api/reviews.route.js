@@ -12,5 +12,3 @@ router
   .delete(ReviewCtrl.apiDeleteReview);
 
 export default router;
-//this comment is for all of u mfs
-
