@@ -4,7 +4,7 @@ A sophisticated RESTful API for managing movie reviews, built with **Node.js**, 
 
 ---
 
-__##🚀 Features##__
+__#🚀 Features__
 
 - **Full CRUD Operations:** Comprehensive management of movie reviews.
 - **Robust Data Modeling:** Leverages Mongoose for schema validation and MongoDB Atlas integration.
