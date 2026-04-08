@@ -1,0 +1,58 @@
+### Movie CRUD
+
+# @name createMovie
+POST http://localhost:5000/movies
+Content-Type: application/json
+
+{
+  "title": "Inception",
+  "description": "A thief who steals corporate secrets through the use of dream-sharing technology.",
+  "year": 2010
+}
+
+### Get all movies
+GET http://localhost:5000/movies
+
+### Get single movie (replace with actual ID from createMovie response)
+GET http://localhost:5000/movies/ID_HERE
+
+### Update movie (replace with actual ID)
+PUT http://localhost:5000/movies/ID_HERE
+Content-Type: application/json
+
+{
+  "title": "Inception (Updated)",
+  "year": 2011
+}
+
+### Delete movie (replace with actual ID)
+DELETE http://localhost:5000/movies/ID_HERE
+
+---
+
+### Review CRUD
+
+# @name addReview
+POST http://localhost:5000/movies/ID_HERE/reviews
+Content-Type: application/json
+
+{
+  "user": "John Doe",
+  "content": "Mind-blowing movie! Loved the concept.",
+  "rating": 9
+}
+
+### Get reviews for a movie
+GET http://localhost:5000/movies/ID_HERE/reviews
+
+### Update a review (replace with actual review ID)
+PUT http://localhost:5000/reviews/ID_HERE
+Content-Type: application/json
+
+{
+  "content": "Still great on the second watch!",
+  "rating": 10
+}
+
+### Delete a review (replace with actual review ID)
+DELETE http://localhost:5000/reviews/ID_HERE
