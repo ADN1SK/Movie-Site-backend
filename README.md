@@ -1,117 +1,145 @@
-__# CineReview API__
+# 🎬 CineFlow API
+> **A sophisticated, high-performance Movie & Review Management System built with Node.js, Express, and Mongoose.**
 
-A sophisticated RESTful API for managing movie reviews, built with **Node.js**, **Express**, and **MongoDB**. This backend serves as a robust data layer for movie-related applications, providing seamless CRUD operations for user reviews.
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express Version](https://img.shields.io/badge/express-5.x-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Mongoose](https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white)](https://mongoosejs.com/)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg?style=for-the-badge)](https://opensource.org/licenses/ISC)
 
 ---
 
-__#🚀 Features__
+## ✨ Features
 
-- **Full CRUD Operations:** Comprehensive management of movie reviews.
-- **Robust Data Modeling:** Leverages Mongoose for schema validation and MongoDB Atlas integration.
-- **Environment Driven:** Highly configurable via environment variables for different deployment stages.
-- **Graceful Lifecycle Management:** Includes handlers for graceful shutdowns and connection management.
-- **CORS Enabled:** Ready for cross-origin frontend integration.
+*   **🎬 Comprehensive Movie CRUD**: Full lifecycle management for movie entries.
+*   **💬 Dynamic Review System**: Seamlessly linked reviews with nested movie associations.
+*   **🛡️ Data Integrity**: Strict schema validation using Mongoose ODM.
+*   **⚡ Modern Architecture**: Clean, modular folder structure (MVC-inspired).
+*   **🚀 Production Ready**: Pre-configured with CORS, Environment variables, and error handling.
+*   **🔄 Async/Await Workflow**: Clean, readable, and non-blocking code.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Runtime:** [Node.js](https://nodejs.org/)
-- **Framework:** [Express 5](https://expressjs.com/)
-- **Database:** [MongoDB](https://www.mongodb.com/)
-- **ODM:** [Mongoose](https://mongoosejs.com/)
-- **Development Tools:** Nodemon, Dotenv
+| Category | Technology |
+| :--- | :--- |
+| **Runtime** | Node.js |
+| **Framework** | Express.js (v5+) |
+| **Database** | MongoDB |
+| **Modeling** | Mongoose |
+| **Environment** | Dotenv |
+| **Security** | CORS |
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Architecture
 
 ```text
-├── api/                # API Routes and Controllers
-│   ├── reviews.controller.js
-│   └── reviews.route.js
-├── dao/                # Data Access Objects (Database logic)
-│   └── reviewsDAO.js
-├── index.js            # Entry point (Server & DB connection)
-├── server.js           # Express app configuration
-└── .env                # Environment variables (not tracked)
+backend/
+├── 📁 config/         # Database connection configuration
+├── 📁 controllers/    # Business logic & request handling
+├── 📁 models/         # Mongoose schemas & data models
+├── 📁 routes/         # Express API route definitions
+├── 📄 .env            # Environment configuration (Private)
+├── 📄 index.js        # Application entry point & server initialization
+└── 📄 test-requests.http # API testing suite (VS Code REST Client)
 ```
 
 ---
 
-## ⚙️ Getting Started
+## 🔌 API Documentation
 
-### Prerequisites
+### 🎞️ Movie Endpoints
 
-- Node.js (v18+ recommended)
-- MongoDB Atlas account or local MongoDB instance
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/movies` | Fetch all movies in the database |
+| `GET` | `/movies/:id` | Retrieve detailed info for a single movie |
+| `POST` | `/movies` | Register a new movie entry |
+| `PUT` | `/movies/:id` | Update existing movie metadata |
+| `DELETE` | `/movies/:id` | Remove a movie from the database |
 
-### Installation
+### 💬 Review Endpoints
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd backend
-   ```
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/movies/:id/reviews` | Retrieve all reviews for a specific movie |
+| `POST` | `/movies/:id/reviews` | Post a new review linked to a movie |
+| `PUT` | `/reviews/:id` | Update an existing review |
+| `DELETE` | `/reviews/:id` | Permanently delete a review |
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+---
 
-### Environment Configuration
+## 🚀 Getting Started
 
-Create a `.env` file in the root directory and configure the following variables:
+### 1. Prerequisites
+*   [Node.js](https://nodejs.org/) installed
+*   [MongoDB](https://www.mongodb.com/try/download/community) (Local or Atlas)
 
+### 2. Installation
+```bash
+# Clone the repository
+git clone <your-repo-url>
+
+# Navigate to backend
+cd backend
+
+# Install dependencies
+npm install
+```
+
+### 3. Environment Setup
+Create a `.env` file in the root:
 ```env
-PORT=8000
-MONGO_USERNAME=your_username
-MONGO_PASSWORD=your_password
-MONGO_CLUSTER=your_cluster.mongodb.net
-MONGO_DB_NAME=moviesDB
-# OR use a direct URI
-# MONGO_URI=mongodb+srv://...
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/movie_db
 ```
 
----
-
-## 🏃 Running the Application
-
-### Development Mode (with hot-reload)
+### 4. Launch
 ```bash
+# Development mode (Hot reload)
 npm run dev
-```
 
-### Production Mode
-```bash
+# Production mode
 npm start
 ```
 
 ---
 
-## 🔌 API Endpoints
+## 🧪 Testing the API
 
-### Reviews Base URL: `/api/v1/reviews`
+We've included a comprehensive `test-requests.http` file. If you use VS Code, install the **REST Client** extension to run tests directly from your editor.
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| **GET** | `/movie/:id` | Retrieve all reviews for a specific movie ID |
-| **GET** | `/:id` | Retrieve a single review by its unique ID |
-| **POST** | `/new` | Create a new movie review |
-| **PUT** | `/:id` | Update an existing review |
-| **DELETE** | `/:id` | Delete a review |
+```http
+### Example: Create a Movie
+POST http://localhost:5000/movies
+Content-Type: application/json
 
-#### Request Examples (POST `/new`)
-```json
 {
-  "movieId": "507f1f77bcf86cd799439011",
-  "user": "John Doe",
-  "review": "An absolute masterpiece!"
+  "title": "Interstellar",
+  "description": "A team of explorers travel through a wormhole in space.",
+  "year": 2014
 }
 ```
 
 ---
 
+## 🤝 Contributing
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git checkout -b feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
 ## 📜 License
 
-Distributed under the [ISC License](https://opensource.org/licenses/ISC).
+Distributed under the **ISC License**. See `LICENSE` for more information.
+
+---
+<p align="center">
+  Developed with ❤️ for the Cinema Community
+</p>
