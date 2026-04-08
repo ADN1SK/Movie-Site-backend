@@ -1,10 +1,10 @@
-# CineReview API
+__# CineReview API__
 
 A sophisticated RESTful API for managing movie reviews, built with **Node.js**, **Express**, and **MongoDB**. This backend serves as a robust data layer for movie-related applications, providing seamless CRUD operations for user reviews.
 
 ---
 
-## 🚀 Features
+__#🚀 Features__
 
 - **Full CRUD Operations:** Comprehensive management of movie reviews.
 - **Robust Data Modeling:** Leverages Mongoose for schema validation and MongoDB Atlas integration.
