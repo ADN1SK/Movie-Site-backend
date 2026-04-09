@@ -1,17 +1,18 @@
-import Movie from '../models/Movie.js';
+import Movie from "../models/Movie.js";
 
-// @desc    Get all movies
+// @desc    Fetch all movies
 // @route   GET /movies
 export const getMovies = async (req, res) => {
   try {
     const movies = await Movie.find({});
+    console.log(`Fetched ${movies.length} movies`);
     res.json(movies);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// @desc    Get single movie
+// @desc    Fetch single movie
 // @route   GET /movies/:id
 export const getMovieById = async (req, res) => {
   try {
@@ -19,9 +20,12 @@ export const getMovieById = async (req, res) => {
     if (movie) {
       res.json(movie);
     } else {
-      res.status(404).json({ message: 'Movie not found' });
+      res.status(404).json({ message: "Movie not found" });
     }
   } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(404).json({ message: "Movie not found" });
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -31,7 +35,11 @@ export const getMovieById = async (req, res) => {
 export const createMovie = async (req, res) => {
   const { title, description, year } = req.body;
   try {
-    const movie = new Movie({ title, description, year });
+    const movie = new Movie({
+      title,
+      description,
+      year,
+    });
     const createdMovie = await movie.save();
     res.status(201).json(createdMovie);
   } catch (error) {
@@ -49,12 +57,16 @@ export const updateMovie = async (req, res) => {
       movie.title = title || movie.title;
       movie.description = description || movie.description;
       movie.year = year || movie.year;
+
       const updatedMovie = await movie.save();
       res.json(updatedMovie);
     } else {
-      res.status(404).json({ message: 'Movie not found' });
+      res.status(404).json({ message: "Movie not found" });
     }
   } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(404).json({ message: "Movie not found" });
+    }
     res.status(400).json({ message: error.message });
   }
 };
@@ -65,12 +77,16 @@ export const deleteMovie = async (req, res) => {
   try {
     const movie = await Movie.findById(req.params.id);
     if (movie) {
+      // Use deleteOne() as remove() is deprecated in newer Mongoose versions
       await movie.deleteOne();
-      res.json({ message: 'Movie removed' });
+      res.json({ message: "Movie removed" });
     } else {
-      res.status(404).json({ message: 'Movie not found' });
+      res.status(404).json({ message: "Movie not found" });
     }
   } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(404).json({ message: "Movie not found" });
+    }
     res.status(500).json({ message: error.message });
   }
 };
