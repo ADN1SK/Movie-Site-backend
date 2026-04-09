@@ -80,7 +80,7 @@ backend/
 ### 2. Installation
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone <https://github.com/ADN1SK/Movie-Site-backend.git>
 
 # Navigate to backend
 cd backend
