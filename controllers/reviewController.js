@@ -1,4 +1,5 @@
-import Review from "../models/Review.js";
+h
+  import Review from "../models/Review.js";
 
 // @desc    Get reviews for a movie
 // @route   GET /movies/:id/reviews
