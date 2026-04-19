@@ -49,24 +49,3 @@ Goals:
 ## Output Format
 
 Provide clean code, explanations, and suggestions for improvements.
-## Example
-**Task**: Implement a new API endpoint to create a movie review.
-**Response**:
-```javascript
-// POST /reviews
-app.post('/reviews', async (req, res) => {
-  try {
-    const { movieId, reviewer, rating, comment } = req.body;
-    const review = new Review({ movieId, reviewer, rating, comment });
-    await review.save();
-    res.status(201).json(review);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create review' });
-  }
-});
-``` 
-**Explanation**: This code defines a new POST endpoint at `/reviews` that allows clients to create a new movie review. It extracts the necessary fields from the request body, creates a new Review object, saves it to the database, and returns the created review in the response. If an error occurs, it returns a 500 status with an error message.
-**Suggestions for Improvement**:
-1. Add validation to ensure all required fields are provided and valid.
-2. Implement authentication to restrict access to authorized users.
-3. Consider adding error handling for specific cases (e.g., invalid movieId, database errors).  
