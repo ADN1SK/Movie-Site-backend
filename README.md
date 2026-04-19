@@ -150,3 +150,4 @@ Distributed under the **ISC License**. See `LICENSE` for more information.
 <p align="center">
   Developed with ❤️ for the Cinema Community
 </p>
+---
