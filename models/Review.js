@@ -1,19 +1,20 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const reviewSchema = mongoose.Schema(
   {
     movieId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'Movie',
+      ref: "Movie",
     },
     user: {
-      type: String,
-      required: [true, 'Please add a user name'],
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
     },
     content: {
       type: String,
-      required: [true, 'Please add review content'],
+      required: [true, "Please add review content"],
     },
     rating: {
       type: Number,
@@ -24,9 +25,9 @@ const reviewSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const Review = mongoose.model('Review', reviewSchema);
+const Review = mongoose.model("Review", reviewSchema);
 
 export default Review;

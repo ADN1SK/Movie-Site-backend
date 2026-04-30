@@ -17,12 +17,12 @@ export const getReviewsByMovieId = async (req, res) => {
 // @desc    Add review for a movie
 // @route   POST /movies/:id/reviews
 export const createReview = async (req, res) => {
-  const { user, content, rating } = req.body;
+  const { content, rating } = req.body;
   const movieId = req.params.id;
   try {
     const review = new Review({
       movieId,
-      user,
+      user: req.user._id,
       content,
       rating,
     });
@@ -39,13 +39,18 @@ export const createReview = async (req, res) => {
 // @desc    Update a review
 // @route   PUT /reviews/:id
 export const updateReview = async (req, res) => {
-  const { user, content, rating } = req.body;
+  const { content, rating } = req.body;
   try {
     const review = await Review.findById(req.params.id);
     if (review) {
-      review.user = user || review.user;
-      review.content = content || review.content;
-      review.rating = rating || review.rating;
+      // Check if the logged-in user is the owner of the review
+      if (review.user.toString() !== req.user._id.toString()) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized to update this review" });
+      }
+      review.content = content !== undefined ? content : review.content;
+      review.rating = rating !== undefined ? rating : review.rating;
       const updatedReview = await review.save();
       res.json(updatedReview);
     } else {
@@ -65,6 +70,12 @@ export const deleteReview = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
     if (review) {
+      // Check if the logged-in user is the owner of the review
+      if (review.user.toString() !== req.user._id.toString()) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized to delete this review" });
+      }
       await review.deleteOne();
       res.json({ message: "Review removed" });
     } else {

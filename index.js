@@ -1,9 +1,10 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import connectDB from './config/db.js';
-import movieRoutes from './routes/movieRoutes.js';
-import reviewRoutes from './routes/reviewRoutes.js';
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import connectDB from "./config/db.js";
+import movieRoutes from "./routes/movieRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 // Load env vars
 dotenv.config();
@@ -17,12 +18,13 @@ app.use(express.json());
 app.use(cors());
 
 // Mount routers
-app.use('/movies', movieRoutes);
-app.use('/reviews', reviewRoutes);
+app.use("/movies", movieRoutes);
+app.use("/reviews", reviewRoutes);
+app.use("/users", userRoutes);
 
 // Root route
-app.get('/', (req, res) => {
-  res.send('API is running...');
+app.get("/", (req, res) => {
+  res.send("API is running...");
 });
 
 const PORT = process.env.PORT || 5000;
@@ -41,4 +43,3 @@ const startServer = async () => {
 };
 
 startServer();
-
