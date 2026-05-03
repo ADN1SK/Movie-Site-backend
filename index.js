@@ -17,10 +17,15 @@ app.use(express.json());
 // Enable CORS
 app.use(cors());
 
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", message: "Backend API is running" });
+});
+
 // Mount routers
-app.use("/movies", movieRoutes);
-app.use("/reviews", reviewRoutes);
-app.use("/users", userRoutes);
+app.use("/api/movies", movieRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/users", userRoutes);
 
 // Root route
 app.get("/", (req, res) => {
