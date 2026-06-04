@@ -1,38 +1,46 @@
-import User from "../models/User.js";
-import jwt from "jsonwebtoken";
+const pool = require("../db");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 // Helper function to generate a JWT
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "30d", // Token expires in 30 days
+  return jwt.sign({ userId: id }, process.env.JWT_SECRET, {
+    expiresIn: "7d", // Consistent with your 7-day policy in routes
   });
 };
 
 // @desc    Register a new user
 // @route   POST /users/register
 // @access  Public
-export const registerUser = async (req, res) => {
+exports.registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    const userExists = await User.findOne({ email });
+    const userExists = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email],
+    );
 
-    if (userExists) {
+    if (userExists.rows.length > 0) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const user = await User.create({
-      name,
-      email,
-      password,
-    });
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (user) {
+    const newUser = await pool.query(
+      `INSERT INTO users (name, email, password_hash, auth_provider)
+       VALUES ($1, $2, $3, 'local')
+       RETURNING id, name, email`,
+      [name, email, hashedPassword],
+    );
+
+    if (newUser.rows.length > 0) {
+      const user = newUser.rows[0];
       res.status(201).json({
-        _id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id),
+        token: generateToken(user.id),
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -45,19 +53,30 @@ export const registerUser = async (req, res) => {
 // @desc    Authenticate user & get token
 // @route   POST /users/login
 // @access  Public
-export const authUser = async (req, res) => {
+exports.authUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+    const user = result.rows[0];
 
-    if (user && (await user.matchPassword(password))) {
+    if (
+      user &&
+      user.auth_provider === "local" &&
+      (await bcrypt.compare(password, user.password_hash))
+    ) {
       res.json({
-        _id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id),
+        token: generateToken(user.id),
       });
+    } else if (user && user.auth_provider !== "local") {
+      res
+        .status(400)
+        .json({ message: "Please use Google login for this account" });
     } else {
       res.status(401).json({ message: "Invalid email or password" });
     }
@@ -69,6 +88,6 @@ export const authUser = async (req, res) => {
 // @desc    Get user profile
 // @route   GET /users/profile
 // @access  Private
-export const getUserProfile = async (req, res) => {
+exports.getUserProfile = async (req, res) => {
   res.json(req.user);
 };
