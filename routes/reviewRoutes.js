@@ -1,10 +1,10 @@
-import express from "express";
-import { updateReview, deleteReview } from "../controllers/reviewController.js";
-import { protect } from "../middleware/authMiddleware.js";
+const express = require("express");
+const { updateReview, deleteReview } = require("../controllers/reviewController");
+const auth = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 // Routes for individual review management
-router.route("/:id").put(protect, updateReview).delete(protect, deleteReview);
+router.route("/:id").put(auth, updateReview).delete(auth, deleteReview);
 
-export default router;
+module.exports = router;

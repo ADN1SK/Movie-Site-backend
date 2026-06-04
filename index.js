@@ -1,10 +1,9 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import connectDB from "./config/db.js";
-import movieRoutes from "./routes/movieRoutes.js";
-import reviewRoutes from "./routes/reviewRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const movieRoutes = require("./routes/movieRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 // Load env vars
 dotenv.config();
@@ -34,17 +33,6 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to database and then start server
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server running in development mode on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error(`Failed to start server: ${error.message}`);
-    process.exit(1);
-  }
-};
-
-startServer();
+app.listen(PORT, () => {
+  console.log(`Server running in development mode on port ${PORT}`);
+});

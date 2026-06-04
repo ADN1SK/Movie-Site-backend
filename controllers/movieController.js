@@ -1,12 +1,11 @@
-import Movie from "../models/Movie.js";
+const pool = require("../db");
 
 // @desc    Fetch all movies
 // @route   GET /movies
-export const getMovies = async (req, res) => {
+exports.getMovies = async (req, res) => {
   try {
-    const movies = await Movie.find({});
-    console.log(`Fetched ${movies.length} movies`);
-    res.json(movies);
+    const result = await pool.query("SELECT * FROM movies");
+    res.json(result.rows);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -14,34 +13,29 @@ export const getMovies = async (req, res) => {
 
 // @desc    Fetch single movie
 // @route   GET /movies/:id
-export const getMovieById = async (req, res) => {
+exports.getMovieById = async (req, res) => {
   try {
-    const movie = await Movie.findById(req.params.id);
-    if (movie) {
-      res.json(movie);
+    const result = await pool.query("SELECT * FROM movies WHERE id = $1", [req.params.id]);
+    if (result.rows.length > 0) {
+      res.json(result.rows[0]);
     } else {
       res.status(404).json({ message: "Movie not found" });
     }
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(404).json({ message: "Movie not found" });
-    }
     res.status(500).json({ message: error.message });
   }
 };
 
 // @desc    Create a movie
 // @route   POST /movies
-export const createMovie = async (req, res) => {
+exports.createMovie = async (req, res) => {
   const { title, description, year } = req.body;
   try {
-    const movie = new Movie({
-      title,
-      description,
-      year,
-    });
-    const createdMovie = await movie.save();
-    res.status(201).json(createdMovie);
+    const result = await pool.query(
+      "INSERT INTO movies (title, description, year) VALUES ($1, $2, $3) RETURNING *",
+      [title, description, year]
+    );
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -49,44 +43,34 @@ export const createMovie = async (req, res) => {
 
 // @desc    Update a movie
 // @route   PUT /movies/:id
-export const updateMovie = async (req, res) => {
+exports.updateMovie = async (req, res) => {
   const { title, description, year } = req.body;
   try {
-    const movie = await Movie.findById(req.params.id);
-    if (movie) {
-      movie.title = title || movie.title;
-      movie.description = description || movie.description;
-      movie.year = year || movie.year;
-
-      const updatedMovie = await movie.save();
-      res.json(updatedMovie);
+    const result = await pool.query(
+      "UPDATE movies SET title = $1, description = $2, year = $3 WHERE id = $4 RETURNING *",
+      [title, description, year, req.params.id]
+    );
+    if (result.rows.length > 0) {
+      res.json(result.rows[0]);
     } else {
       res.status(404).json({ message: "Movie not found" });
     }
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(404).json({ message: "Movie not found" });
-    }
     res.status(400).json({ message: error.message });
   }
 };
 
 // @desc    Delete a movie
 // @route   DELETE /movies/:id
-export const deleteMovie = async (req, res) => {
+exports.deleteMovie = async (req, res) => {
   try {
-    const movie = await Movie.findById(req.params.id);
-    if (movie) {
-      // Use deleteOne() as remove() is deprecated in newer Mongoose versions
-      await movie.deleteOne();
+    const result = await pool.query("DELETE FROM movies WHERE id = $1 RETURNING *", [req.params.id]);
+    if (result.rows.length > 0) {
       res.json({ message: "Movie removed" });
     } else {
       res.status(404).json({ message: "Movie not found" });
     }
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(404).json({ message: "Movie not found" });
-    }
     res.status(500).json({ message: error.message });
   }
 };

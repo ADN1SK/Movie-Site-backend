@@ -1,15 +1,15 @@
-import express from 'express';
-import {
+const express = require('express');
+const {
   getMovies,
   getMovieById,
   createMovie,
   updateMovie,
   deleteMovie,
-} from '../controllers/movieController.js';
-import {
+} = require('../controllers/movieController');
+const {
   getReviewsByMovieId,
   createReview,
-} from '../controllers/reviewController.js';
+} = require('../controllers/reviewController');
 
 const router = express.Router();
 
@@ -41,4 +41,4 @@ router.route('/:id').get(getMovieById).put(updateMovie).delete(deleteMovie);
 // Nested routes for reviews under a movie
 router.route('/:id/reviews').get(getReviewsByMovieId).post(createReview);
 
-export default router;
+module.exports = router;
