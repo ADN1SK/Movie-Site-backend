@@ -16,8 +16,8 @@ const router = express.Router();
 router.route("/").get(getMovies).post(createMovie);
 
 // TMDB Proxy fallback for non-hex IDs (like 'trending', 'popular', etc.)
-router.get("/*", async (req, res, next) => {
-  const path = req.params[0];
+router.get(/^\/(.*)$/, async (req, res, next) => {
+  const path = req.params[0] || req.path.replace(/^\//, "");
 
   // If it starts with a numeric ID, it's treated as a local DB movie request
   if (/^\d+(\/|$)/.test(path) || path === "" || path === "/") {
