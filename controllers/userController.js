@@ -80,9 +80,29 @@ exports.authUser = async (req, res) => {
   }
 };
 
+// @desc    Logout user
+// @route   POST /api/auth/logout
+// @access  Public
+exports.logoutUser = async (req, res) => {
+  res.json({ message: "Logged out successfully" });
+};
+
 // @desc    Get user profile
-// @route   GET /users/profile
+// @route   GET /api/auth/profile
 // @access  Private
 exports.getUserProfile = async (req, res) => {
-  res.json(req.user);
+  try {
+    const user = await pool.query(
+      "SELECT id, name, email FROM users WHERE id = $1",
+      [req.user.userId]
+    );
+
+    if (user.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user.rows[0]);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };

@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const movieRoutes = require("./routes/movieRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
-const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 // Load env vars
 dotenv.config();
@@ -24,7 +24,7 @@ app.get("/api/health", (req, res) => {
 // Mount routers
 app.use("/api/movies", movieRoutes);
 app.use("/api/reviews", reviewRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 
 // Root route
 app.get("/", (req, res) => {
