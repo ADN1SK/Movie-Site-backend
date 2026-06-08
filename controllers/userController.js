@@ -28,8 +28,8 @@ exports.registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
-      `INSERT INTO users (name, email, password_hash, auth_provider)
-       VALUES ($1, $2, $3, 'local')
+      `INSERT INTO users (name, email, password_hash)
+       VALUES ($1, $2, $3)
        RETURNING id, name, email`,
       [name, email, hashedPassword],
     );
@@ -64,7 +64,6 @@ exports.authUser = async (req, res) => {
 
     if (
       user &&
-      user.auth_provider === "local" &&
       (await bcrypt.compare(password, user.password_hash))
     ) {
       res.json({
@@ -73,10 +72,6 @@ exports.authUser = async (req, res) => {
         email: user.email,
         token: generateToken(user.id),
       });
-    } else if (user && user.auth_provider !== "local") {
-      res
-        .status(400)
-        .json({ message: "Please use Google login for this account" });
     } else {
       res.status(401).json({ message: "Invalid email or password" });
     }

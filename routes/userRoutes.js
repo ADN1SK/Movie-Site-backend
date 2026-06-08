@@ -2,7 +2,6 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const pool = require("../db");
-const verifyGoogleToken = require("../googleVerify");
 const auth = require("../middleware/authMiddleware");
 const rateLimit = require("express-rate-limit");
 
@@ -49,8 +48,8 @@ router.post("/signup", authLimiter, async (req, res) => {
 
     // 4. Create User
     const newUser = await pool.query(
-      `INSERT INTO users (name, email, password_hash, auth_provider)
-       VALUES ($1, $2, $3, 'local')
+      `INSERT INTO users (name, email, password_hash)
+       VALUES ($1, $2, $3)
        RETURNING id, name, email`,
       [name, email, hashed]
     );
@@ -85,10 +84,6 @@ router.post("/login", authLimiter, async (req, res) => {
     }
 
     const user = result.rows[0];
-
-    if (user.auth_provider !== 'local') {
-      return res.status(400).json({ error: "Please use Google login for this account" });
-    }
 
     const valid = await bcrypt.compare(password, user.password_hash);
 
@@ -141,59 +136,5 @@ router.post("/logout", (req, res) => {
   res.json({ message: "Logged out successfully" });
 });
 
-// GOOGLE LOGIN
-router.post("/google", async (req, res) => {
-  try {
-    const { token } = req.body;
-
-    if (!token) {
-      return res.status(400).json({ error: "Google token is required" });
-    }
-
-    const googleUser = await verifyGoogleToken(token);
-    const { email, name, sub: google_id } = googleUser;
-
-    let result = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
-
-    let user;
-
-    if (result.rows.length === 0) {
-      const newUser = await pool.query(
-        `INSERT INTO users (name, email, google_id, auth_provider)
-         VALUES ($1, $2, $3, 'google')
-         RETURNING id, name, email`,
-        [name, email, google_id]
-      );
-
-      user = newUser.rows[0];
-    } else {
-      user = result.rows[0];
-      // If user exists but was local, we might want to link or just allow login
-      // For now, we reuse the user.
-    }
-
-    const jwtToken = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    return res.json({ 
-      token: jwtToken,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email
-      }
-    });
-
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Google login failed" });
-  }
-});
-
 module.exports = router;
+
