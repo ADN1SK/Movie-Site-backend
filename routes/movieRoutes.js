@@ -10,6 +10,7 @@ const {
   getReviewsByMovieId,
   createReview,
 } = require("../controllers/reviewController");
+const auth = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -47,6 +48,6 @@ router.get(/^\/(.*)$/, async (req, res, next) => {
 router.route("/:id").get(getMovieById).put(updateMovie).delete(deleteMovie);
 
 // Nested routes for reviews under a movie
-router.route("/:id/reviews").get(getReviewsByMovieId).post(createReview);
+router.route("/:id/reviews").get(getReviewsByMovieId).post(auth, createReview);
 
 module.exports = router;
