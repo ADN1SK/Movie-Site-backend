@@ -4,6 +4,7 @@ const cors = require("cors");
 const movieRoutes = require("./routes/movieRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const authRoutes = require("./routes/authRoutes");
+const userMovieRoutes = require("./routes/userMovieRoutes");
 
 // Load env vars
 dotenv.config();
@@ -25,6 +26,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/movies", movieRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/user-movies", userMovieRoutes);
 
 // Root route
 app.get("/", (req, res) => {
@@ -33,6 +35,10 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running in development mode on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running in development mode on port ${PORT}`);
+  });
+}
+
+module.exports = app;
