@@ -93,7 +93,7 @@ exports.logoutUser = async (req, res) => {
 exports.getUserProfile = async (req, res) => {
   try {
     const user = await pool.query(
-      "SELECT id, name, email FROM users WHERE id = $1",
+      "SELECT id, name, email, avatar_url FROM users WHERE id = $1",
       [req.user.userId]
     );
 
@@ -104,5 +104,27 @@ exports.getUserProfile = async (req, res) => {
     res.json(user.rows[0]);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+exports.updateUserProfile = async (req, res) => {
+  const { name, avatar_url } = req.body;
+
+  try {
+    const result = await pool.query(
+      "UPDATE users SET name = $1, avatar_url = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING id, name, email, avatar_url",
+      [name, avatar_url, req.user.userId],
+    );
+
+    if (result.rows.length > 0) {
+      res.json(result.rows[0]);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };
