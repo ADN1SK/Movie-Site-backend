@@ -4,9 +4,9 @@ const pool = require("../db");
 // @route   POST /api/user-movies
 // @access  Private
 exports.addItem = async (req, res) => {
-  const { tmdb_movie_id, movie_title, type } = req.body;
+  const { tmdb_movie_id, movie_title, type, genre_ids } = req.body;
   const user_id = req.user.userId;
-  const sqlParams = [user_id, tmdb_movie_id, movie_title, type];
+  const sqlParams = [user_id, tmdb_movie_id, movie_title, type, genre_ids];
   console.info("[USER_MOVIES] addItem", {
     loggedInUserId: user_id,
     jwtPayload: req.user,
@@ -16,8 +16,8 @@ exports.addItem = async (req, res) => {
 
   try {
     const newItem = await pool.query(
-      `INSERT INTO user_movies (user_id, tmdb_movie_id, movie_title, type)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO user_movies (user_id, tmdb_movie_id, movie_title, type, genre_ids)
+       VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (user_id, tmdb_movie_id, type) DO NOTHING
        RETURNING *`,
       sqlParams,

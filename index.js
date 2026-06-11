@@ -5,6 +5,7 @@ const movieRoutes = require("./routes/movieRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const authRoutes = require("./routes/authRoutes");
 const userMovieRoutes = require("./routes/userMovieRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
 
 // Load env vars
 dotenv.config();
@@ -33,6 +34,7 @@ app.use("/api/movies", movieRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user-movies", userMovieRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 // Root route
 app.get("/", (req, res) => {
