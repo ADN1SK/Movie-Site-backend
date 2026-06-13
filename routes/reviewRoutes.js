@@ -4,13 +4,21 @@ const {
   getReviewsByUserId,
   updateReview,
   deleteReview,
+  getAllReviews,
+  getCommentsByReviewId,
+  createComment,
 } = require("../controllers/reviewController");
 const auth = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+// @route   GET /api/reviews
 // @route   POST /api/reviews
-router.route("/").post(auth, createReview);
+router.route("/").get(getAllReviews).post(auth, createReview);
+
+// @route   GET /api/reviews/:id/comments
+// @route   POST /api/reviews/:id/comments
+router.route("/:id/comments").get(getCommentsByReviewId).post(auth, createComment);
 
 // @route   GET /api/reviews/:userId
 router.route("/:userId").get(getReviewsByUserId);

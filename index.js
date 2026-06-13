@@ -5,6 +5,7 @@ const movieRoutes = require("./routes/movieRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const authRoutes = require("./routes/authRoutes");
 const userMovieRoutes = require("./routes/userMovieRoutes");
+const historyRoutes = require("./routes/historyRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
 
 // Load env vars
@@ -13,7 +14,7 @@ dotenv.config();
 const app = express();
 
 // Body parser
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
 // Enable CORS
 app.use(cors());
@@ -34,6 +35,8 @@ app.use("/api/movies", movieRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user-movies", userMovieRoutes);
+console.log("Mounting history routes at /api/history...");
+app.use("/api/history", historyRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 
 // Root route

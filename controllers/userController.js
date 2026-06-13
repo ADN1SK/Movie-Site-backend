@@ -28,8 +28,8 @@ exports.registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
-      `INSERT INTO users (name, email, password_hash)
-       VALUES ($1, $2, $3)
+      `INSERT INTO users (name, email, password_hash, last_login_at)
+       VALUES ($1, $2, $3, NOW())
        RETURNING id, name, email`,
       [name, email, hashedPassword],
     );
@@ -41,6 +41,8 @@ exports.registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         token: generateToken(user.id),
+        is_new_user: true,
+        is_first_login_today: true
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -66,11 +68,29 @@ exports.authUser = async (req, res) => {
       user &&
       (await bcrypt.compare(password, user.password_hash))
     ) {
+      const oldLastLogin = user.last_login_at;
+      let isFirstLoginToday = false;
+
+      if (!oldLastLogin) {
+        isFirstLoginToday = true;
+      } else {
+        const lastLoginDate = new Date(oldLastLogin).toDateString();
+        const today = new Date().toDateString();
+        if (lastLoginDate !== today) {
+          isFirstLoginToday = true;
+        }
+      }
+
+      // Update last_login_at
+      await pool.query("UPDATE users SET last_login_at = NOW() WHERE id = $1", [user.id]);
+
       res.json({
         id: user.id,
         name: user.name,
         email: user.email,
         token: generateToken(user.id),
+        is_new_user: false,
+        is_first_login_today: isFirstLoginToday
       });
     } else {
       res.status(401).json({ message: "Invalid email or password" });
@@ -115,7 +135,7 @@ exports.updateUserProfile = async (req, res) => {
 
   try {
     const result = await pool.query(
-      "UPDATE users SET name = $1, avatar_url = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING id, name, email, avatar_url",
+      "UPDATE users SET name = $1, avatar_url = $2 WHERE id = $3 RETURNING id, name, email, avatar_url",
       [name, avatar_url, req.user.userId],
     );
 

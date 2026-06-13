@@ -115,3 +115,80 @@ exports.deleteReview = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// @desc    Get all reviews (public feed)
+// @route   GET /api/reviews
+exports.getAllReviews = async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT r.*, u.name as user_name FROM reviews r LEFT JOIN users u ON r.user_id = u.id ORDER BY r.created_at DESC"
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("[REVIEW_CONTROLLER] Error in getAllReviews:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// @desc    Get comments for a review
+// @route   GET /api/reviews/:id/comments
+exports.getCommentsByReviewId = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      "SELECT c.*, u.name as user_name FROM review_comments c LEFT JOIN users u ON c.user_id = u.id WHERE c.review_id = $1 ORDER BY c.created_at ASC",
+      [id]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("[REVIEW_CONTROLLER] Error in getCommentsByReviewId:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// @desc    Add a comment to a review
+// @route   POST /api/reviews/:id/comments
+exports.createComment = async (req, res) => {
+  const { id } = req.params;
+  const { comment_text, parent_id } = req.body;
+  const user_id = req.user.userId;
+
+  if (!comment_text || comment_text.trim() === "") {
+    return res.status(400).json({ message: "Comment text is required" });
+  }
+
+  try {
+    const checkReview = await pool.query("SELECT id FROM reviews WHERE id = $1", [id]);
+    if (checkReview.rows.length === 0) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    // If parent_id is provided, verify it exists and belongs to the same review
+    if (parent_id) {
+      const checkParent = await pool.query(
+        "SELECT id FROM review_comments WHERE id = $1 AND review_id = $2",
+        [parent_id, id]
+      );
+      if (checkParent.rows.length === 0) {
+        return res.status(400).json({ message: "Invalid parent comment" });
+      }
+    }
+
+    const result = await pool.query(
+      "INSERT INTO review_comments (review_id, user_id, comment_text, parent_id) VALUES ($1, $2, $3, $4) RETURNING *",
+      [id, user_id, comment_text, parent_id || null]
+    );
+
+    const commenter = await pool.query("SELECT name FROM users WHERE id = $1", [user_id]);
+    const commentWithUser = {
+      ...result.rows[0],
+      user_name: commenter.rows[0]?.name || "Anonymous",
+    };
+
+    res.status(201).json(commentWithUser);
+  } catch (error) {
+    console.error("[REVIEW_CONTROLLER] Error in createComment:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
