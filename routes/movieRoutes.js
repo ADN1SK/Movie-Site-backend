@@ -16,6 +16,11 @@ const router = express.Router();
 
 router.route("/").get(getMovies).post(createMovie);
 
+router.route("/:id").get(getMovieById).put(updateMovie).delete(deleteMovie);
+
+// Nested routes for reviews under a movie
+router.route("/:id/reviews").get(getReviewsByMovieId).post(auth, createReview);
+
 // TMDB Proxy fallback for non-hex IDs (like 'trending', 'popular', etc.)
 router.get(/^\/(.*)$/, async (req, res, next) => {
   const path = req.params[0] || req.path.replace(/^\//, "");
@@ -44,10 +49,5 @@ router.get(/^\/(.*)$/, async (req, res, next) => {
       .json({ error: "Failed to fetch from TMDB", message: error.message });
   }
 });
-
-router.route("/:id").get(getMovieById).put(updateMovie).delete(deleteMovie);
-
-// Nested routes for reviews under a movie
-router.route("/:id/reviews").get(getReviewsByMovieId).post(auth, createReview);
 
 module.exports = router;

@@ -52,3 +52,26 @@ exports.clearHistory = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Delete a specific history item
+// @route   DELETE /api/history/:id
+// @access  Private
+exports.deleteItem = async (req, res) => {
+  const { id } = req.params;
+  const user_id = req.user.userId;
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM history WHERE id = $1 AND user_id = $2 RETURNING *",
+      [id, user_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "History item not found or not authorized" });
+    }
+
+    res.json({ message: "Item removed from history" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
